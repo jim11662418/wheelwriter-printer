@@ -4,4 +4,4 @@ The Wheelwriter prints characters received from the PC's parallel port or serial
 
 This project only works on earlier Wheelwriter models, the ones that internally have two circuit boards: the Function Board and the Printer Board (Wheelwriter models 3, 5 and 6).
 
-The MCU connects to the J1P "Feature" connector on the Wheelwriter's Printer Board.
+The MCU connects to the J1P "Feature" connector on the Wheelwriter's Printer Board. See the schematic for details.
