@@ -1,5 +1,5 @@
 # IBM Wheelwriter Printer
-This project uses a Dallas Semiconductor [DS89C440](https://www.maximintegrated.com/en/products/microcontrollers/DS89C440.html) MCU (an Intel 8052-compatible microcontroller)  to interface a vintage IBM Wheelwriter electronic typewriter to a host computer's RS232 serial port or LPT parallel port and thus allow the Wheelwriter to act as a [Windows "Generic/Text Only"](https://youtu.be/nlqU7pKytA4) daisy wheel printer. 
+This project uses a Dallas Semiconductor [DS89C440](https://www.maximintegrated.com/en/products/microcontrollers/DS89C440.html) Microcontroller (an Intel 8052-compatible MCU) to interface a vintage IBM Wheelwriter electronic typewriter to a host computer's RS232 serial port or LPT parallel port and thus allow the Wheelwriter to act as a [Windows "Generic/Text Only"](https://youtu.be/nlqU7pKytA4) daisy wheel printer. 
 <p align="center"><img src="/images/Wheelwriter%20Interface.jpg"/>
 <p align="center">Wheelwriter Interface Built on a Piece of Perfboard</p><br>
 <p align="center"><img src="/images/Serial%20Port%20Connector.jpg"/>
