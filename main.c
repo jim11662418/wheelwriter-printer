@@ -10,11 +10,11 @@
 // the Function Board.
 //
 // Flashing instructions:
-//      Configure Teraterm for 4800 bps, N-8-1. Install the jumper on the SBC to enable bootloader mode. Press Enter
-//      to start the the DS89C4XX bootloader.  Enter "K" to erase the flash memory followed by "LB" to load the object
-//      code. Use the Teraterm "Send File" function to send the Intel hex object code to the SBC. After the object code
-//      has finished loading, change the Teraterm serial port baud rate to match the application. Remove the jumper to 
-//      disable the bootloader and start the application.
+//      Configure TeraTerm for 4800 bps, N-8-1. Install the jumper on the SBC to enable bootloader mode. Press Enter
+//      to start the the DS89C440 bootloader.  At the bootloader prompt, enter "K" to erase the flash memory followed
+//      by "LB" to load the object code. Use the TeraTerm "Send File" function to send the Intel hex object code to the
+//      SBC. After the object code has finished loading, change the TeraTerm serial port baud rate to match the application.
+//      Remove the jumper to disable the bootloader and start the application.
 //
 // For the Keil C51 compiler.
 //
@@ -92,6 +92,7 @@ volatile unsigned char seconds = 0;     // uptime seconds
 
 extern unsigned char uSpacesPerChar;    // defined in wheelwriter.c
 extern unsigned char uLinesPerLine;
+extern unsigned int  uSpaceCount;
 
 // uninitialized variables in xdata RAM, contents unaffected by reset
 volatile unsigned char xdata wdResets _at_ 0x3F0;// count of watchdog resets
@@ -136,6 +137,7 @@ code char help2[]     = "\n\nPrinter control not part of the Diablo 630 emulatio
                         "<ESC><^Z><m>    monitor communications between boards\n"
                         "<ESC><^Z><p><n> show the value of Port n (0-3)\n"
                         "<ESC><^Z><r>    reset the Wheelwriter\n"
+                        "<ESC><^Z><s>    show the micro-space count\n"
                         "<ESC><^Z><u>    show the uptime\n"
                         "<ESC><^Z><w>    show the number of watchdog resets\n\n";
 
@@ -236,6 +238,7 @@ void ex0_isr(void) interrupt 0 using 2 {
 // diagnostics/debugging:
 // <ESC><^Z><c> print (on the serial console) the current column
 // <ESC><^Z><r> reset the DS89C440 microcontroller
+// <ESC><^Z><s> print (on the serial console) the current micro-space count
 // <ESC><^Z><u> print (on the serial console) the uptime as HH:MM:SS
 // <ESC><^Z><w> print (on the serial console) the number of watchdog resets
 // <ESC><^Z><e><n> turn flashing red error LED on or off (n=1 is on, n=0 is off)
@@ -391,6 +394,10 @@ void print_character(unsigned char charToPrint) {
 					TA = 0x55;
                     FCNTL = 0x0F;		        			// use the FCNTL register to preform a system reset
                     break; 
+                case 's':
+                    printf("%s %u\n","uSpaces:",uSpaceCount);
+                    escape = 0;
+                    break;
                 case 'u':                                   // <ESC><^Z><u> print uptime
                     printf("%s %02u%c%02u%c%02u\n","Uptime:",(int)hours,':',(int)minutes,':',(int)seconds);
                     escape = 0;

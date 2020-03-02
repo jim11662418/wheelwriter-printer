@@ -4,7 +4,7 @@
 #define TRUE  1
 #define ON 0                                        // 0 turns the amber LED on
 #define OFF 1                                       // 1 turns the amber LED off
-#define BSIZE 16                                    // Must be one of these powers of 2 (2,4,8,16,32,64,128)
+#define BSIZE 8                                     // Must be one of these powers of 2 (2,4,8,16,32,64,128)
 
 #if BSIZE < 2
 #error BSIZE is too small. BSIZE may not be less than 2.
