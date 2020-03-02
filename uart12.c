@@ -15,6 +15,14 @@
 
 //////////////////////////////////////// Serial 0 /////////////////////////////////////
 #define BUFFERSIZE 256
+#if BUFFERSIZE < 4
+#error BUFFERSIZE is too small. BUFFERSIZE may not be less than 4.
+#elif BUFFERSIZE > 256
+#error BUFFERSIZE is too large. BUFFERSIZE may not be greater than 256.
+#elif ((BUFFERSIZE & (BUFFERSIZE-1)) != 0)
+#error BUFFERSIZE must be a power of 2.
+#endif
+
 #define PAUSELEVEL BUFFERSIZE/4		                // pause communications (RTS = 1) when buffer space < 64 bytes
 #define RESUMELEVEL BUFFERSIZE/2                    // resume communications (RTS = 0) when buffer space > 128 bytes
 

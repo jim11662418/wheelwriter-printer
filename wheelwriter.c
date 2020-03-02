@@ -4,6 +4,15 @@
 #define TRUE  1
 #define ON 0                                        // 0 turns the amber LED on
 #define OFF 1                                       // 1 turns the amber LED off
+#define BSIZE 16                                    // Must be one of these powers of 2 (2,4,8,16,32,64,128)
+
+#if BSIZE < 2
+#error BSIZE is too small. BSIZE may not be less than 2.
+#elif BSIZE > 128
+#error BSIZE is too large. BSIZE may not be greater than 128.
+#elif ((BSIZE & (BSIZE-1)) != 0)
+#error BSIZE must be a power of 2.
+#endif
 
 unsigned char uSpacesPerChar = 10;                  // micro spaces per character (8 for 15cpi, 10 for 12cpi and PS, 12 for 10cpi)
 unsigned char uLinesPerLine = 16;                   // micro lines per line (12 for 15cpi; 16 for 10cpi, 12cpi and PS)
@@ -15,7 +24,7 @@ sbit WWbus = P1^2;		  			                // P1.2, (RXD1, pin 3) used to monitor 
 ///////////////////////////// Serial 1 interface to Wheelwriter ////////////////////////////
 volatile unsigned char data rx1_head;       	    // receive interrupt index for serial 1
 volatile unsigned char data rx1_tail;       	    // receive read index for serial 1
-volatile unsigned int data rx1_buf[8];              // receive buffer for serial 1 
+volatile unsigned int data rx1_buf[BSIZE];          // receive buffer for serial 1 
 volatile bit tx1_ready;                             // set when ready to transmit
 volatile bit waitingForAcknowledge = 0;             // TRUE when expecting the acknowledge pulse from Wheelwriter
 
@@ -42,7 +51,7 @@ void uart1_isr(void) interrupt 7 using 3 {
        if (waitingForAcknowledge) {                 // just transmitted a command, waiting for acknowledge...
           waitingForAcknowledge = FALSE;            // clear the flag
           if (wwBusData) {                          // if it's not acknowledge (all zeros) ...
-             rx1_buf[rx1_head++ & 0x07] = wwBusData;// save it in the buffer
+             rx1_buf[rx1_head++ & (BSIZE-1)] = wwBusData;// save it in the buffer
           }
 	   }
        else {                                       // not waiting for acknowledge...
@@ -54,7 +63,7 @@ void uart1_isr(void) interrupt 7 using 3 {
           }
 
 	      if (wwBusData || (count%2)) {             // if wwBusData is not zero or if it's the second zero...
-             rx1_buf[rx1_head++ & 0x07] = wwBusData;// save it in the buffer
+             rx1_buf[rx1_head++ & (BSIZE-1)] = wwBusData;// save it in the buffer
 	      }
        }
     }   
@@ -127,7 +136,7 @@ unsigned int ww_get_data(void) {
 // character on the printwheel followed by “r” (code 03), “m” (code 04), “c” (code 05), “s” (code 06),
 // “d” (code 07), “h” (code 08), and so on.
 //------------------------------------------------------------------------------------------------
-char code printwheel[160] =  
+char code printwheelChar[160] =  
 // col: 00    01    02    03    04    05    06    07    08    09    0A    0B    0C    0D    0E    0F    row:
 //      sp     !     "     #     $     %     &     '     (     )     *     +     ,     -     .     /
       {0x00, 0x49, 0x4b, 0x38, 0x37, 0x39, 0x3f, 0x4c, 0x23, 0x16, 0x36, 0x3b, 0x0c, 0x0e, 0x57, 0x28, // 20
@@ -222,7 +231,7 @@ void ww_erase_letter(unsigned char letter) {
     ww_put_data(uSpacesPerChar);            // number of micro spaces to move left    
     ww_put_data(0x121);
     ww_put_data(0x004);                     // print on correction tape
-    ww_put_data(printwheel[letter-0x20]);
+    ww_put_data(printwheelChar[letter-0x20]);
     ww_put_data(uSpacesPerChar);            // number of micro spaces to move right
     uSpaceCount -= uSpacesPerChar;          // update the micro space count
     amberLED = OFF;                         // turn off amber LED  
@@ -292,7 +301,7 @@ void ww_print_letter(unsigned char letter,attribute) {
     amberLED = ON;                          // turn on amber LED    
     ww_put_data(0x121);
     ww_put_data(0x003);
-    ww_put_data(printwheel[letter-0x20]);   // ascii character (-0x20) as index to printwheel table    
+    ww_put_data(printwheelChar[letter-0x20]);// ascii character (-0x20) as index to printwheel table    
     if ((attribute & 0x06) && ((letter!=0x20) || (attribute & 0x02))){// if underlining AND the letter is not a space OR continuous underlining is on
         ww_put_data(0x000);                 // advance zero micro spaces
         ww_put_data(0x121);
@@ -303,7 +312,7 @@ void ww_print_letter(unsigned char letter,attribute) {
         ww_put_data(0x001);                 // advance carriage by one micro space
         ww_put_data(0x121);
         ww_put_data(0x003);
-        ww_put_data(printwheel[letter-0x20]);// re-print the character offset by one micro space
+        ww_put_data(printwheelChar[letter-0x20]);// re-print the character offset by one micro space
         ww_put_data((uSpacesPerChar)-1);    // advance carriage the remaining micro spaces
     } 
     else { // not boldprint
@@ -316,27 +325,4 @@ void ww_print_letter(unsigned char letter,attribute) {
     amberLED = OFF;                         // turn off amber LED  
 }
 
-#define FIFTEENCPI 8                        // number of micro spaces for each character on the 15P printwheel (15 cpi)
-#define TWELVECPI 10                        // number of micro spaces for each character on the 12P printwheel (12 cpi)
-#define TENCPI 12                           // number of micro spaces for each character on the 10P printwheel (10 cpi)
-// set micro spaces per character and micro lines per line values according to the printwheel in use
-void ww_set_printwheel(unsigned char pw) {
-    switch (pw) {
-        case FIFTEENCPI:                    // 15P printwheel (15 cpi)
-            uSpacesPerChar = 8;
-            uLinesPerLine = 12;
-            break;
-        case TWELVECPI:                     // 12P printwheel (12 cpi)
-            uSpacesPerChar = 10;
-            uLinesPerLine = 16;
-            break;
-        case TENCPI:                        // 10P printwheel (10 cpi)
-            uSpacesPerChar = 12;
-            uLinesPerLine = 16;
-            break;
-        default:
-            uSpacesPerChar = 10;
-            uLinesPerLine = 16;
-    }
-}
-    
+   
