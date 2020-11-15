@@ -23,7 +23,7 @@ bit kb_shift;                               // shift key is pressed
 volatile unsigned char kb_bitcount;         // count of bits received from keyboard
 volatile unsigned char kb_out;              // keyboard scancode read index.
 volatile unsigned char kb_in;               // keyboard scancode write index.
-volatile unsigned char kb_buf[16];          // keyboard scancode queue.
+volatile unsigned char xdata kb_buf[16];    // keyboard scancode queue.
 
 // ---------------------------------------------------------------------------
 // interrupt each time the keyboard clock input goes low. stores the scancode in the 
@@ -62,7 +62,8 @@ void kb_isr(void) interrupt 2 using 2{
 		    break;
 		case 10:								// stop bit
 			if (kb_data_in && kb_parity) {		// if stop bit is high and parity is odd
-        		kb_buf[kb_in++ & 0x0F] = recdbits;// store the scancode in the buffer
+        		kb_buf[kb_in] = recdbits;       // store the scancode in the buffer
+                kb_in = ++kb_in & 0x0F;
 			}
         	kb_bitcount = 0;
         	recdbits = 0;
@@ -85,7 +86,8 @@ unsigned char kb_get_scancode(void) {
     unsigned char buf;
 
     while(kb_in == kb_out);            // wait until a character is available
-    buf = kb_buf[kb_out++ & 0x0F];
+    buf = kb_buf[kb_out];
+    kb_out = ++kb_out & 0x0F;
     return(buf);
 }
 
@@ -103,7 +105,7 @@ unsigned char kb_get_scancode(void) {
 //  8.   Repeat steps 5-7 for the other seven data bits and the parity bit 
 //  9.   Release the Data line. 
 //  10.  Wait for the device to bring Data low. 
-//  11.  Wait for the device to bring Clock  low. 
+//  11.  Wait for the device to bring Clock low. 
 //  12.  Wait for the device to release Data and Clock
 // ---------------------------------------------------------------------------
 unsigned char kb_send_cmd(unsigned char kbcmd) {

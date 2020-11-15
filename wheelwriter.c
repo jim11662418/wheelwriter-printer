@@ -4,14 +4,14 @@
 #define TRUE  1
 #define ON 0                                        // 0 turns the amber LED on
 #define OFF 1                                       // 1 turns the amber LED off
-#define BSIZE 8                                     // Must be one of these powers of 2 (2,4,8,16,32,64,128)
+#define BUFFSIZE 16
 
-#if BSIZE < 2
-#error BSIZE is too small. BSIZE may not be less than 2.
-#elif BSIZE > 128
-#error BSIZE is too large. BSIZE may not be greater than 128.
-#elif ((BSIZE & (BSIZE-1)) != 0)
-#error BSIZE must be a power of 2.
+#if BUFFSIZE < 2
+    #error BUFFSIZE may not be less than 2.
+#elif BUFFSIZE > 128
+    #error BUFFSIZE may not be greater than 128.
+#elif ((BUFFSIZE & (BUFFSIZE-1)) != 0)
+    #error BUFFSIZE must be a power of 2.
 #endif
 
 unsigned char uSpacesPerChar = 10;                  // micro spaces per character (8 for 15cpi, 10 for 12cpi and PS, 12 for 10cpi)
@@ -24,7 +24,7 @@ sbit WWbus = P1^2;		  			                // P1.2, (RXD1, pin 3) used to monitor 
 ///////////////////////////// Serial 1 interface to Wheelwriter ////////////////////////////
 volatile unsigned char data rx1_head;       	    // receive interrupt index for serial 1
 volatile unsigned char data rx1_tail;       	    // receive read index for serial 1
-volatile unsigned int data rx1_buf[BSIZE];          // receive buffer for serial 1 
+volatile unsigned int xdata rx1_buf[BUFFSIZE];      // receive buffer for serial 1 
 volatile bit tx1_ready;                             // set when ready to transmit
 volatile bit waitingForAcknowledge = 0;             // TRUE when expecting the acknowledge pulse from Wheelwriter
 
@@ -51,7 +51,8 @@ void uart1_isr(void) interrupt 7 using 3 {
        if (waitingForAcknowledge) {                 // just transmitted a command, waiting for acknowledge...
           waitingForAcknowledge = FALSE;            // clear the flag
           if (wwBusData) {                          // if it's not acknowledge (all zeros) ...
-             rx1_buf[rx1_head++ & (BSIZE-1)] = wwBusData;// save it in the buffer
+             rx1_buf[rx1_head] = wwBusData;         // save it in the buffer
+             rx1_head = ++rx1_head & (BUFFSIZE-1); 
           }
 	   }
        else {                                       // not waiting for acknowledge...
@@ -63,7 +64,8 @@ void uart1_isr(void) interrupt 7 using 3 {
           }
 
 	      if (wwBusData || (count%2)) {             // if wwBusData is not zero or if it's the second zero...
-             rx1_buf[rx1_head++ & (BSIZE-1)] = wwBusData;// save it in the buffer
+             rx1_buf[rx1_head] = wwBusData;         // save it in the buffer
+             rx1_head = ++rx1_head & (BUFFSIZE-1); 
 	      }
        }
     }   
@@ -125,7 +127,8 @@ unsigned int ww_get_data(void) {
     unsigned int buf;
 
     while (rx1_head == rx1_tail);     			    // wait until a word is available
-    buf = rx1_buf[rx1_tail++ &0x07];                // retrieve the word from the buffer
+    buf = rx1_buf[rx1_tail];                        // retrieve the word from the buffer
+    rx1_tail = ++rx1_tail & (BUFFSIZE-1);
     return(buf);
 }
 

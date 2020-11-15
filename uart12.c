@@ -16,11 +16,11 @@
 //////////////////////////////////////// Serial 0 /////////////////////////////////////
 #define BUFFERSIZE 256
 #if BUFFERSIZE < 4
-#error BUFFERSIZE is too small. BUFFERSIZE may not be less than 4.
+    #error BUFFERSIZE may not be less than 4.
 #elif BUFFERSIZE > 256
-#error BUFFERSIZE is too large. BUFFERSIZE may not be greater than 256.
+    #error BUFFERSIZE may not be greater than 256.
 #elif ((BUFFERSIZE & (BUFFERSIZE-1)) != 0)
-#error BUFFERSIZE must be a power of 2.
+    #error BUFFERSIZE must be a power of 2.
 #endif
 
 #define PAUSELEVEL BUFFERSIZE/4		                // pause communications (RTS = 1) when buffer space < 64 bytes
@@ -45,13 +45,15 @@ void uart0_isr(void) interrupt 4 using 3 {
     }
 
     // serial 0 receive interrupt
-    if(RI) {                                	    // serial 0 Receive character?
+    if(RI) {                                	    // receive character?
         RI = 0;                             	    // clear serial receive interrupt flag
-        rx_buf[rx_head++ &(BUFFERSIZE-1)] = SBUF0;  // Get character from serial port and put into serial 0 fifo.
+        rx_buf[rx_head] = SBUF0;                    // Get character from serial port and put into serial 0 fifo.
+        rx_head = ++rx_head &(BUFFERSIZE-1);
+        
 		--rx_remaining;							    // space remaining in serial 0 buffer decreases
         if (!RTS){ 								    // if communications is not now paused...
         	if (rx_remaining < PAUSELEVEL) {
-          		RTS = 1;						    // pause communications when space in serial 0 buffer decreases to less than 32 bytes
+          		RTS = 1;						    // pause communications when space in serial buffer decreases to less than 32 bytes
        		}
     	}
     }
@@ -62,7 +64,7 @@ void uart0_isr(void) interrupt 4 using 3 {
 //  using timer 1 clocked at OSC/1 instead of the default OSC/12 for baud rate generation.
 //  Note: baudrate values are for use with a 12MHz crystal.
 // ---------------------------------------------------------------------------
-void uart_init(unsigned int baudrate) {
+void uart_init(unsigned long baudrate) {
     rx_head = 0;                   		            // initialize head/tail pointers.
     rx_tail = 0;
     rx_remaining = BUFFERSIZE;                      // 256 characters
@@ -113,7 +115,9 @@ char uart_getchar(void) {
     unsigned char buf;
 
     while (rx_head == rx_tail);     			    // wait until a character is available
-    buf = rx_buf[rx_tail++ &(BUFFERSIZE-1)];
+    buf = rx_buf[rx_tail];
+    rx_tail = ++rx_tail &(BUFFERSIZE-1);    
+    
 	++rx_remaining;			   			    	    // space remaining in buffer increases
 	if (RTS) {	  								    // if communication is now paused...
    		if (rx_remaining > RESUMELEVEL) {			
@@ -137,7 +141,7 @@ char uart_putchar(char c)  {
 /*------------------------------------------------------------------------------
 Note that the two function below, getchar and putchar, replace the library
 functions of the same name.  These functions use the interrupt-driven serial 0
-I/O routines in uart.c
+I/O routines in uart12.c
 ------------------------------------------------------------------------------*/
 // for scanf
 char _getkey(void) {
