@@ -13,4 +13,4 @@ The DS89C440 features two hardware UARTS. The first of the two UARTS is used to 
 <p align="center"><img src="/images/J1P%20Feature%20Connector.jpg"/>
 <p align="center">Interface connection to J1P "Feature" Connector in the Wheelwriter Printer Board</p><br>
 
-The [firmware](main.c) for the Interface was developed using the Keil C51 compiler.
+The [firmware](main.c) for the Interface was developed using the Keil C51 compiler. The object code in Intel Hex format is provided for those without access to the Keil C51 compiler.
