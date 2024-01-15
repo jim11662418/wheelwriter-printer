@@ -12,5 +12,3 @@ This project uses a Dallas Semiconductor [DS89C440](https://www.maximintegrated.
 The DS89C440 features two hardware UARTS. The first of the two UARTS is used to connect to the host computer's serial port while the second UART is used to connect to the Wheelwriter's 'BUS' on the J1 'Feature' connector located on the Wheelwriter's Printer Board. Not all Wheelwriters have this J1 connector. The early models (Wheelwriter 3, 5 and 6) do. Some, but not all, of the later models also have the connector. I know, for example, that the Wheelwriter 6 Series II has the connector but the Wheelwriter 10 and 15 do not.
 <p align="center"><img src="/images/J1P%20Feature%20Connector.jpg"/>
 <p align="center">Interface connection to J1P "Feature" Connector in the Wheelwriter Printer Board</p><br>
-
-The [firmware](main.c) for the Interface was developed using the Keil C51 compiler. The object code in Intel Hex format is provided for those without access to the Keil C51 compiler.
