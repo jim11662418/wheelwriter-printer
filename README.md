@@ -3,7 +3,7 @@ This project uses a Dallas Semiconductor [DS89C440](https://www.maximintegrated.
 
 The MCU also optionally accepts and prints input from an PS/2 keyboard. Thus it may be used to restore functionality to a Wheelwriter with a damaged keyboard.
 
-<p align="center"><img src="/images/schematic.png"/>
+<p align="center"><img src="/images/schematic.png"width=75% height=75%>
 <p align="center">Schematic</p><br>
 <p align="center"><img src="/images/Wheelwriter%20Interface.jpg"/>
 <p align="center">Wheelwriter Interface Built on a Piece of Perfboard</p><br>
