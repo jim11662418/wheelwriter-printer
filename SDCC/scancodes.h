@@ -3,7 +3,7 @@
 #ifndef __SCANCODES_H__
 #define __SCANCODES_H__
 
-unsigned char code unshifted[128] = {
+unsigned char code __unshifted[128] = {
 0,       // 00
 0,       // 01 - F9
 0,       // 02
@@ -133,7 +133,7 @@ unsigned char code unshifted[128] = {
 0,       // 7e - Scroll Lock
 0};      // 7f
 
-unsigned char code shifted[128] = { 
+unsigned char __code shifted[128] = { 
 0,       // 00
 0,       // 01 - F9
 0,       // 02 - F7
