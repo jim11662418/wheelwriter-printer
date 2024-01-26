@@ -203,6 +203,4 @@ __sbit __at(0xFA) LPX4;
 __sbit __at(0xFB) LPPX5;
 __sbit __at(0xFC) LPWDI;
 
-/* end */
-
 #endif
