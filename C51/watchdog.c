@@ -7,39 +7,39 @@
 // clear watchdog timer and POR flags
 //-----------------------------------------------------------
 void wd_clr_flags(void) {  
-	TA = 0xAA;						// timed access
-	TA = 0x55;					   
-	POR = 0;  						// clear power on reset flag for next time
-	TA = 0xAA;						// timed access
-	TA = 0x55;
-	WTRF = 0; 						// clear watchdog timer reset flag for next time
+   TA = 0xAA;                          // timed access
+   TA = 0x55;                 
+   POR = 0;                            // clear power on reset flag for next time
+   TA = 0xAA;                          // timed access
+   TA = 0x55;
+   WTRF = 0;                           // clear watchdog timer reset flag for next time
 }
 
 //-----------------------------------------------------------
 // enable watchdog timer reset
 //-----------------------------------------------------------
 void wd_enable_watchdog(void) {
-	TA = 0xAA;						// timed access
-	TA = 0x55;
-    EWT =1;            				// enable watchdog timer reset
+   TA = 0xAA;                          // timed access
+   TA = 0x55;
+   EWT =1;                             // enable watchdog timer reset
 }
 
 //-----------------------------------------------------------
 // disable watchdog timer
 //-----------------------------------------------------------
 void wd_disable_watchdog(void) {
-	TA = 0xAA;						// timed access
-	TA = 0x55;
-    EWT = 0;           				// disable watchdog timer reset
+   TA = 0xAA;                          // timed access
+   TA = 0x55;
+   EWT = 0;                            // disable watchdog timer reset
 }
 
 //-----------------------------------------------------------
 // reset watchdog timer
 //-----------------------------------------------------------
 void wd_reset_watchdog(void) {
-    TA = 0xAA;						// timed access
-	TA = 0x55;
-    RWT = 1;						// reset the watchdog timer
+    TA = 0xAA;                         // timed access
+    TA = 0x55;
+    RWT = 1;                           // reset the watchdog timer
 }
 
 //-----------------------------------------------------------
@@ -51,7 +51,7 @@ void wd_reset_watchdog(void) {
 //-----------------------------------------------------------
 void wd_init_watchdog(unsigned char interval) {
 
-    wd_enable_watchdog();           // enable watchdog reset
+    wd_enable_watchdog();              // enable watchdog reset
     switch (interval) {
         case 0:
             CKCON = (CKCON & 0x3F);

@@ -21,4 +21,5 @@ void ww_init(void);
 void ww_put_data(unsigned int wwCommand);
 bit ww_data_avail(void);
 unsigned int ww_get_data(void);
+
 #endif
